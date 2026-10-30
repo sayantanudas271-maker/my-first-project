@@ -1,0 +1,6 @@
+{
+  "name": "AutoOps AI - Autonomous Enterprise Workflow Agent",
+  "description": "Autonomous Supply Chain & Vendor Operations Orchestrator powered by agentic AI planning, tool execution, and multi-agent reasoning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

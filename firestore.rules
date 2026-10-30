@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection Health Verification Probe
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Reusable Security Primitives
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'sayantanudas271@gmail.com' ||
+        request.auth.token.email == 'admin@autoops.ai'
+      );
+    }
+
+    // 1. User Profiles Collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isOwner(userId) && isValidId(userId) && incoming().uid == request.auth.uid;
+      allow update: if (isOwner(userId) || isAdmin()) && incoming().uid == existing().uid;
+      allow delete: if isAdmin();
+    }
+
+    // 2. Autonomous Workflows Collection
+    match /workflows/{workflowId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(workflowId) && incoming().id == workflowId;
+      allow update: if isSignedIn() && isValidId(workflowId) && incoming().id == existing().id;
+      allow delete: if isAdmin();
+    }
+
+    // 3. Inventory Telemetry Collection
+    match /inventory/{itemId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(itemId);
+      allow delete: if isAdmin();
+    }
+  }
+}

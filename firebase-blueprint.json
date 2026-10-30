@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Enterprise user record with authentication role and timestamps",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["ADMIN", "MANAGER", "AGENT_OPERATOR"] },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Workflow": {
+      "title": "Workflow Task",
+      "description": "Autonomous multi-agent procurement workflow with step plan and PO",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 2048 },
+        "status": { "type": "string", "enum": ["PENDING", "IN_PROGRESS", "NEEDS_APPROVAL", "COMPLETED", "FAILED"] },
+        "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "targetSku": { "type": "string", "maxLength": 64 },
+        "riskScore": { "type": "number" },
+        "estimatedSavings": { "type": "number" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "status", "riskScore", "createdBy"]
+    },
+    "InventoryItem": {
+      "title": "Warehouse Inventory Item",
+      "description": "Physical SKU stock telemetry and supplier information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "sku": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 256 },
+        "category": { "type": "string", "maxLength": 128 },
+        "stockLevel": { "type": "number" },
+        "reorderPoint": { "type": "number" },
+        "safetyStock": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "primaryVendorEmail": { "type": "string", "maxLength": 128 },
+        "primaryVendorName": { "type": "string", "maxLength": 128 },
+        "warehouseLocation": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "sku", "name", "stockLevel", "reorderPoint"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Authenticated enterprise user profile records"
+    },
+    "/workflows/{workflowId}": {
+      "schema": "Workflow",
+      "description": "Autonomous supply chain workflows and approval tracking"
+    },
+    "/inventory/{itemId}": {
+      "schema": "InventoryItem",
+      "description": "Real-time warehouse SKU telemetry and threshold configs"
+    }
+  }
+}
